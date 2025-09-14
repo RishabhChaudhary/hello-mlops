@@ -1,0 +1,45 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.12]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: make install
+
+    - name: Format check
+      run: make check
+
+    - name: Lint and Fpormat
+      run: make fix
+
+    - name: Run tests with coverage
+      run: make test
+
+    - name: Upload coverage report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: htmlcov
+        path: htmlcov/
+
